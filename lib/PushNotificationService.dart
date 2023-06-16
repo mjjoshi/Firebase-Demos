@@ -36,12 +36,8 @@ class PushNotificationService {
     RemoteMessage? initialMessage = await _fcm.getInitialMessage();
     // This handles routing to a secific page when there's a click event on the notification
     void handleMessage(RemoteMessage message) {
-      print("testHandletest=>${message.notification?.title}");
-      //navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => SecondScreen()));
       Get.to(SecondScreen());
-      // if (message.data['type'] == 'home') {
-      //   AppNavigator.pushNamedReplacement(homeRoute);
-      // }
+
     }
 
     if (initialMessage != null) {
@@ -67,9 +63,6 @@ class PushNotificationService {
     void onSelectNotification(NotificationResponse notificationResponse) async {
       var payloadData = jsonDecode(notificationResponse.payload!);
       print("payload12222=>${payloadData}");
-      // if (payloadData["type"] == "home") {
-      //   AppNavigator.pushNamedReplacement(homeRoute);
-      // }
       Get.to(SecondScreen());
     }
 

@@ -27,8 +27,8 @@ Future<void> main() async {
       print("getInitialMessage=>${message.notification?.title}");
 
       if (message.notification?.title != "") {
-        Future.delayed(const Duration(milliseconds: 500), () async {
-          Get.to(SecondScreen());
+        Future.delayed(const Duration(milliseconds: 200), () async {
+          Get.to(const SecondScreen());
         });
       }
     }
@@ -47,8 +47,6 @@ class MyApp extends StatelessWidget {
 
   //var test = ["item1"];
 
-
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -57,7 +55,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: MyHomePage(message: "sdsad",title: "sfsdf"),
+      home: const MyHomePage(message: "sdsad",title: "sfsdf"),
     );
   }
 }
@@ -81,11 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _incrementCounter() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SecondScreen()));
-
-    // setState(() {
-    //   _counter++;
-    // });
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SecondScreen()));
   }
 
   @override
