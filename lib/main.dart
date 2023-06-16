@@ -7,20 +7,32 @@ import 'package:firebasedemos/secondscreen.dart';
 import 'firebase_options.dart';
 import 'package:get/get.dart';
 
+
 @pragma('vm:entry-point')
 Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
   print("testHandleback=>${message.notification?.title}");
-  // Get.to(SecondScreen());
-//  _pushMessagingNotification.showNotification(message);
 }
 
 final _pushMessagingNotification = PushNotificationService();
-
 Future<void> main() async {
+  Get.testMode = true;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  await FirebaseMessaging.instance.getInitialMessage();
+
+
+
+  await FirebaseMessaging.instance.getInitialMessage().then((message) {
+    if (message != null) {
+      print("getInitialMessage=>${message.notification?.title}");
+
+      if (message.notification?.title != "") {
+        Future.delayed(const Duration(milliseconds: 500), () async {
+          Get.to(SecondScreen());
+        });
+      }
+    }
+  });
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   await _pushMessagingNotification.initialize();
@@ -35,24 +47,26 @@ class MyApp extends StatelessWidget {
 
   //var test = ["item1"];
 
+
+
   @override
   Widget build(BuildContext context) {
-    //FirebaseCrashlytics.instance.crash();
     return GetMaterialApp(
       title: 'Flutter demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(message: "sdsad",title: "sfsdf"),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title,required this.message});
 
   final String title;
+  final String message;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -60,6 +74,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _incrementCounter() {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => SecondScreen()));

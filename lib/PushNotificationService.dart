@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebasedemos/secondscreen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/src/widgets/navigator.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 
@@ -34,6 +37,7 @@ class PushNotificationService {
     // This handles routing to a secific page when there's a click event on the notification
     void handleMessage(RemoteMessage message) {
       print("testHandletest=>${message.notification?.title}");
+      //navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => SecondScreen()));
       Get.to(SecondScreen());
       // if (message.data['type'] == 'home') {
       //   AppNavigator.pushNamedReplacement(homeRoute);
