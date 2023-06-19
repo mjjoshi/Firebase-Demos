@@ -1,12 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebasedemos/PushNotificationService.dart';
-import 'package:flutter/material.dart';
 import 'package:firebasedemos/secondscreen.dart';
-import 'firebase_options.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
@@ -14,13 +15,12 @@ Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
 }
 
 final _pushMessagingNotification = PushNotificationService();
+
 Future<void> main() async {
   Get.testMode = true;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-
-
 
   await FirebaseMessaging.instance.getInitialMessage().then((message) {
     if (message != null) {
@@ -55,13 +55,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(message: "sdsad",title: "sfsdf"),
+      home: const MyHomePage(message: "sdsad", title: "sfsdf"),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title,required this.message});
+  const MyHomePage({super.key, required this.title, required this.message});
 
   final String title;
   final String message;
@@ -73,13 +73,19 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  String? _linkMessage;
+  bool _isCreatingLink = false;
+  final String DynamicLink = 'https://testkishan.page.link/welcome';
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+
   @override
   void initState() {
     super.initState();
+    initDynamicLinks();
   }
 
   void _incrementCounter() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SecondScreen()));
+   // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SecondScreen()));
   }
 
   @override
@@ -104,10 +110,64 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {
+          _createDynamicLink(false);
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
     );
   }
+
+  Future<void> initDynamicLinks() async {
+    dynamicLinks.onLink.listen((dynamicLinkData) {
+      print("etst=>${dynamicLinkData.link.path}");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SecondScreen(),
+        ),
+      );
+    }).onError((error) {
+      print('onLink error');
+      print(error.message);
+    });
+  }
+
+Future<void> _createDynamicLink(bool short) async {
+  setState(() {
+    _isCreatingLink = true;
+  });
+
+  final DynamicLinkParameters parameters = DynamicLinkParameters(
+    uriPrefix: 'https://testkishan.page.link',
+    link: Uri.parse(DynamicLink),
+    androidParameters: const AndroidParameters(
+      packageName: 'com.example.firebasedemos',
+      minimumVersion: 0,
+    ),
+    iosParameters: const IOSParameters(
+      bundleId: 'com.example.firebasedemos',
+      minimumVersion: '0',
+    ),
+  );
+
+  Uri url;
+  if (short) {
+    final ShortDynamicLink shortLink = await dynamicLinks.buildShortLink(parameters);
+    url = shortLink.shortUrl;
+    print("test=>${url}");
+   } else {
+    url = await dynamicLinks.buildLink(parameters);
+    print("test11=>${url}");
+  }
+  setState(() {
+    _linkMessage = url.toString();
+    _isCreatingLink = false;
+  });
 }
+
+
+}
+//when you get link just paste into any other place. when you click on that it will redirect on application.
+//https://betterprogramming.pub/deep-linking-in-flutter-with-firebase-dynamic-links-8a4b1981e1eb
