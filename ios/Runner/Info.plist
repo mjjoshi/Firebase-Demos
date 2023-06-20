@@ -47,5 +47,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLName</key>
+    <string>testkishan.page.link</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+    <string>https</string>
+    </array>
 </dict>
 </plist>
