@@ -34,7 +34,6 @@ class PushNotificationService {
     // This handles routing to a secific page when there's a click event on the notification
     void handleMessage(RemoteMessage message) {
       Get.to(SecondScreen());
-
     }
 
     if (initialMessage != null) {

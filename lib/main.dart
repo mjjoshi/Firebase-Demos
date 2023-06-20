@@ -6,7 +6,6 @@ import 'package:firebasedemos/PushNotificationService.dart';
 import 'package:firebasedemos/secondscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'firebase_options.dart';
 
 @pragma('vm:entry-point')
@@ -15,7 +14,7 @@ Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
 }
 
 final _pushMessagingNotification = PushNotificationService();
-
+PendingDynamicLinkData? initialLink;
 Future<void> main() async {
   Get.testMode = true;
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +35,7 @@ Future<void> main() async {
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   await _pushMessagingNotification.initialize();
+    initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
 
   //Handle Push Notification when app is in background and when app is terminated
   FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
@@ -120,14 +120,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> initDynamicLinks() async {
+    if (initialLink != null) {
+      print("etst initialLink=>${initialLink?.link.path}");
+      Future.delayed(const Duration(milliseconds: 1000), () async {
+        Get.to(const SecondScreen());
+      });
+    }
+
     dynamicLinks.onLink.listen((dynamicLinkData) {
       print("etst=>${dynamicLinkData.link.path}");
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SecondScreen(),
-        ),
-      );
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => SecondScreen(),
+      //   ),
+      // );
+      Future.delayed(const Duration(milliseconds: 1000), () async {
+        Get.to(const SecondScreen());
+      });
     }).onError((error) {
       print('onLink error');
       print(error.message);
@@ -166,8 +176,6 @@ Future<void> _createDynamicLink(bool short) async {
     _isCreatingLink = false;
   });
 }
-
-
 }
 //when you get link just paste into any other place. when you click on that it will redirect on application.
 //https://betterprogramming.pub/deep-linking-in-flutter-with-firebase-dynamic-links-8a4b1981e1eb
