@@ -3,10 +3,11 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebasedemos/secondscreen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 
-class PushNotificationService {
+class FCMNotificationService {
   String deviceToken = '';
 
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
@@ -27,7 +28,8 @@ class PushNotificationService {
 
     await _fcm.getToken().then((token) {
       deviceToken = token!;
-      print("test=>${deviceToken}");
+      print(deviceToken);
+
     });
     // Enable Background Notification to retrieve any message which caused the application to open from a terminated state
     RemoteMessage? initialMessage = await _fcm.getInitialMessage();
@@ -35,7 +37,6 @@ class PushNotificationService {
     void handleMessage(RemoteMessage message) {
       Get.to(SecondScreen());
     }
-
     if (initialMessage != null) {
       handleMessage(initialMessage);
     }
@@ -58,17 +59,15 @@ class PushNotificationService {
     // This handles routing to a secific page when there's a click event on the notification
     void onSelectNotification(NotificationResponse notificationResponse) async {
       var payloadData = jsonDecode(notificationResponse.payload!);
-      print("payload12222=>${payloadData}");
       Get.to(SecondScreen());
     }
-
     _flutterLocalNotificationsPlugin.initialize(initializationSettings, onDidReceiveNotificationResponse: onSelectNotification);
   }
 
   Future showNotification(RemoteMessage message) async {
     // We create an Android Notification Channel that overrides the default FCM channel to enable heads up notifications.
     AndroidNotificationChannel channel = const AndroidNotificationChannel(
-      'fcm_default_channel',
+      'fcm_channel',
       'High Importance Notifications',
       importance: Importance.high,
     );

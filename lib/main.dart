@@ -2,51 +2,60 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebasedemos/PushNotificationService.dart';
+import 'package:firebasedemos/FCMNotificationService.dart';
 import 'package:firebasedemos/secondscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
-  print("testHandleback=>${message.notification?.title}");
+  debugPrint("testHandleback=>${message.notification?.title}");
 }
 
-final _pushMessagingNotification = PushNotificationService();
+final _pushMessagingNotification = FCMNotificationService();
+
 PendingDynamicLinkData? initialLink;
+
+
 Future<void> main() async {
   Get.testMode = true;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+  _pushNotificationMessage();
+  _deepLinkingSetup();
+  runApp(MyApp());
+}
 
+_pushNotificationMessage() async {
   await FirebaseMessaging.instance.getInitialMessage().then((message) {
     if (message != null) {
-      print("getInitialMessage=>${message.notification?.title}");
+      debugPrint("getInitialMessage=>${message.notification?.title}");
 
       if (message.notification?.title != "") {
         Future.delayed(const Duration(milliseconds: 200), () async {
-          Get.to(const SecondScreen());
+          Get.to(SecondScreen());
         });
       }
     }
   });
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   await _pushMessagingNotification.initialize();
-    initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
-
   //Handle Push Notification when app is in background and when app is terminated
   FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
-  runApp(MyApp());
+}
+
+_deepLinkingSetup() async {
+  initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
+}
+
+_crashlyticsSetup() async {
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-
-  //var test = ["item1"];
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -55,7 +64,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(message: "sdsad", title: "sfsdf"),
+      home: const MyHomePage(message: "Test", title: "Home"),
     );
   }
 }
@@ -71,7 +80,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final int _counter = 0;
 
   String? _linkMessage;
   bool _isCreatingLink = false;
@@ -82,10 +91,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     initDynamicLinks();
-  }
-
-  void _incrementCounter() {
-   // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SecondScreen()));
   }
 
   @override
@@ -111,7 +116,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _createDynamicLink(false);
+          // _createDynamicLink(false);
+          Get.to(SecondScreen());
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
@@ -123,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (initialLink != null) {
       print("etst initialLink=>${initialLink?.link.path}");
       Future.delayed(const Duration(milliseconds: 1000), () async {
-        Get.to(const SecondScreen());
+        Get.to(SecondScreen());
       });
     }
 
@@ -136,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //   ),
       // );
       Future.delayed(const Duration(milliseconds: 1000), () async {
-        Get.to(const SecondScreen());
+        Get.to(SecondScreen());
       });
     }).onError((error) {
       print('onLink error');
@@ -144,38 +150,38 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-Future<void> _createDynamicLink(bool short) async {
-  setState(() {
-    _isCreatingLink = true;
-  });
+  Future<void> _createDynamicLink(bool short) async {
+    setState(() {
+      _isCreatingLink = true;
+    });
 
-  final DynamicLinkParameters parameters = DynamicLinkParameters(
-    uriPrefix: 'https://testkishan.page.link',
-    link: Uri.parse(DynamicLink),
-    androidParameters: const AndroidParameters(
-      packageName: 'com.example.firebasedemos',
-      minimumVersion: 0,
-    ),
-    iosParameters: const IOSParameters(
-      bundleId: 'com.example.firebasedemos',
-      minimumVersion: '0',
-    ),
-  );
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://testkishan.page.link',
+      link: Uri.parse(DynamicLink),
+      androidParameters: const AndroidParameters(
+        packageName: 'com.example.firebasedemos',
+        minimumVersion: 0,
+      ),
+      iosParameters: const IOSParameters(
+        bundleId: 'com.example.firebasedemos',
+        minimumVersion: '0',
+      ),
+    );
 
-  Uri url;
-  if (short) {
-    final ShortDynamicLink shortLink = await dynamicLinks.buildShortLink(parameters);
-    url = shortLink.shortUrl;
-    print("test=>${url}");
-   } else {
-    url = await dynamicLinks.buildLink(parameters);
-    print("test11=>${url}");
+    Uri url;
+    if (short) {
+      final ShortDynamicLink shortLink = await dynamicLinks.buildShortLink(parameters);
+      url = shortLink.shortUrl;
+      print("test=>${url}");
+    } else {
+      url = await dynamicLinks.buildLink(parameters);
+      print("test11=>${url}");
+    }
+    setState(() {
+      _linkMessage = url.toString();
+      _isCreatingLink = false;
+    });
   }
-  setState(() {
-    _linkMessage = url.toString();
-    _isCreatingLink = false;
-  });
-}
 }
 //when you get link just paste into any other place. when you click on that it will redirect on application.
 //https://betterprogramming.pub/deep-linking-in-flutter-with-firebase-dynamic-links-8a4b1981e1eb
