@@ -6,6 +6,7 @@ import 'package:firebasedemos/FCMNotificationService.dart';
 import 'package:firebasedemos/secondscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 import 'firebase_options.dart';
 
@@ -25,6 +26,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   _pushNotificationMessage();
   _deepLinkingSetup();
+
   runApp(MyApp());
 }
 
@@ -116,8 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // _createDynamicLink(false);
-          Get.to(SecondScreen());
+           _createDynamicLink(false);
+        //  Get.to(SecondScreen());
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),

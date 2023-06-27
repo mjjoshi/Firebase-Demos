@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SecondScreen extends StatefulWidget {
   @override
@@ -6,24 +7,18 @@ class SecondScreen extends StatefulWidget {
 }
 
 class _secondScreen extends State<SecondScreen> {
-
-
-
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Second Screen'),
-      ),
-      body: const Text(
+    return GetMaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Second Screen'),
+        ),
+        body: const Text(
           "Second Page",
-          style: TextStyle(fontSize: 16,color: Colors.red),
-
+          style: TextStyle(fontSize: 16, color: Colors.red),
+        ),
       ),
     );
   }
-
-
 }
-
